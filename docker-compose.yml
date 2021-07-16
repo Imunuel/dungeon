@@ -1,0 +1,64 @@
+version: '3.7'
+services:
+  auth_db:
+    image: postgres:12-alpine
+    ports:
+      - 5434:5432
+    env_file:
+      - dungeon-auth/.env
+    volumes:
+      - ./dungeon-auth/postgres_data:/var/lib/postgresql/data/
+  auth_web:
+    build:
+      context: .
+      dockerfile: dungeon-auth/Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - auth_db
+    env_file:
+      - dungeon-auth/.env
+
+  email_db:
+    image: postgres:12-alpine
+    ports:
+      - 5435:5432
+    env_file:
+      - dungeon-mailing/.env
+    volumes:
+      - ./dungeon-mailing/postgres_data:/var/lib/postgresql/data/
+  email_web:
+    build:
+      context: .
+      dockerfile: dungeon-mailing/Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - 8001:8000
+    depends_on:
+      - email_db
+    env_file:
+      - dungeon-mailing/.env
+
+  sockets_db:
+    image: postgres:12-alpine
+    ports:
+      - 5436:5432
+    env_file:
+      - dungeon-sockets/.env
+    volumes:
+      - ./dungeon-sockets/postgres_data:/var/lib/postgresql/data/
+  sockets_web:
+    build:
+      context: .
+      dockerfile: dungeon-sockets/Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - 8002:8000
+    depends_on:
+      - sockets_db
+    env_file:
+      - dungeon-sockets/.env

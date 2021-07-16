@@ -1,0 +1,84 @@
+version: '3'
+
+volumes:
+  dbdata: { }
+  mongodata: { }
+  init-mongo: { }
+
+services:
+  postgres:
+    image: postgres:13-alpine
+    container_name: dungeon-postgres
+    env_file: envs/.env
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+  mongodb:
+    image: mongo:latest
+    container_name: dungeon-mongodb
+    env_file: envs/.env
+    volumes:
+      - mongodata:/data/db
+      - init-mongo:/docker-entrypoint-initdb.d
+    ports:
+      - "27019:27017"
+
+  web:
+    &django
+    build:
+      context: ..
+      dockerfile: dungeon-main/docker/web/Dockerfile
+    image: dungeon_django
+    container_name: dungeon-django
+    volumes:
+      - .:/src
+    depends_on:
+      - postgres
+      - mongodb
+      - celerybeat
+      - celeryworker
+    env_file: envs/.env
+    ports:
+      - "8000:8000"
+    command: /start
+
+  redis:
+    image: redis:alpine
+    container_name: dungeon-redis
+
+  celerybeat:
+    <<: *django
+    image: dungeon_celery_beat
+    container_name: dungeon-beat
+    depends_on:
+      - postgres
+      - redis
+      - mongodb
+    ports: [ ]
+    command: /start-beat
+
+  celeryworker:
+    <<: *django
+    image: dungeon_celery_worker
+    container_name: dungeon-worker
+    depends_on:
+      - redis
+      - postgres
+      - mongodb
+    ports: [ ]
+    command: /start-worker
+
+  client:
+    build:
+      context: ..
+      dockerfile: dungeon-main/docker/client/Dockerfile
+    image: dungeon_client
+    container_name: dungeon-react
+    depends_on:
+      - web
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    command: yarn start

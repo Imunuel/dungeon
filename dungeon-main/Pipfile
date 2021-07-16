@@ -1,0 +1,45 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Django = "*"
+django-rest-framework = "*"
+psycopg2-binary = "*"
+django-environ = "*"
+Pillow = "*"
+celery = "*"
+django-celery-beat = "*"
+redis = "*"
+pyjwt = "*"
+install = "*"
+djangorestframework-simplejwt = "*"
+drf-yasg = "*"
+graphene-django = "*"
+djongo = "*"
+pymongo = "*"
+dnspython = "*"
+django-polymorphic = "*"
+
+[dev-packages]
+pytest = "*"
+flake8 = "*"
+isort = "*"
+factory-boy = "*"
+install = "*"
+pytest-django = "*"
+pytest-freezegun = "*"
+pytest-factoryboy = "*"
+mypy = "*"
+pytest-env = "*"
+ipython = "*"
+pytest-celery = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+mixer = "*"
+flake8-aaa = "*"
+mock = "*"
+
+[requires]
+python_version = "3.8"
